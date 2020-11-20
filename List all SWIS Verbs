@@ -1,0 +1,7 @@
+--https://thwack.solarwinds.com/thread/109630
+--Orion SWIS Verbs
+
+SELECT Name, MethodName, CodeBehind, CanInvoke, EntityName
+FROM Metadata.Verb
+--WHERE EntityName LIKE 'Orion.Nodes'
+--   OR EntityName LIKE 'Orion.AlertSuppression'
