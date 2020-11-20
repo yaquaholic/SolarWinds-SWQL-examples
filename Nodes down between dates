@@ -1,0 +1,14 @@
+--Find node down events between two timestamps
+--For other events have a look at the Orion.EventTypes table
+
+SELECT TOP 1000 
+       NodeID,
+       IPAddress, 
+       Caption,
+       DetailsUrl
+FROM Orion.Nodes
+WHERE NodeID IN (SELECT NetworkNode
+                 FROM Orion.Events
+                 WHERE EventTime > '2020-10-12 23:30:00'
+                  AND EventTime < '2020-10-13 23:55:00'
+                  AND EventTYPE = 1)
