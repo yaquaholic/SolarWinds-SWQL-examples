@@ -1,0 +1,55 @@
+SELECT DISTINCT [EntityUri],
+       [SuppressFrom] AS [UtcSuppressFrom],
+       [SuppressUntil] AS [UtcSuppressUntil],
+       ToLocal([SuppressFrom]) AS [LocalSuppressFrom],
+       ToLocal([SuppressUntil]) AS [LocalSuppressUntil],
+       CASE
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%' AND [EntityUri] NOT LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/%'
+             THEN [N].[Caption]
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/Interfaces/InterfaceID=%'
+             THEN [I].[FullName]
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/Applications/ApplicationID=%'
+             THEN [AA].[FullyQualifiedName]
+          ELSE 'SomethingElse'
+       END AS [Element],
+       CASE
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%' AND [EntityUri] NOT LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/%'
+             THEN [N].[DetailsUrl]
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/Interfaces/InterfaceID=%'
+             THEN [I].[DetailsUrl]
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/Applications/ApplicationID=%'
+             THEN [AA].[DetailsUrl]
+          ELSE '<a href="/Orion/SummaryView.aspx">SomethingElse</a>'
+       END AS [DetailsUrl],
+       CASE
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%' AND [EntityUri] NOT LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/%'
+             THEN [N].[Status]
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/Interfaces/InterfaceID=%'
+             THEN [I].[Status]
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/Applications/ApplicationID=%'
+             THEN [AA].[Status]
+          ELSE 30
+       END AS [Status],
+       [AE].AccountID
+FROM Orion.AlertSuppression AS [AlertSup]
+LEFT OUTER JOIN Orion.Nodes AS [N]
+   ON [AlertSup].[EntityUri] = [N].[Uri]
+LEFT OUTER JOIN Orion.NPM.Interfaces AS [I]
+   ON [AlertSup].[EntityUri] = [I].[Uri]
+LEFT OUTER JOIN Orion.APM.Application AS [AA]
+   ON [AlertSup].[EntityUri] = [AA].[Uri]
+LEFT OUTER JOIN Orion.AuditingEvents AS [AE]
+   ON [AE].AuditEventMessage LIKE CONCAT('%', CASE
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%' AND [EntityUri] NOT LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/%'
+             THEN [N].[NodeName]
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/Interfaces/InterfaceID=%'
+             THEN [I].[InterfaceCaption]
+          WHEN [EntityUri] LIKE 'swis://%/Orion/Orion.Nodes/NodeID=%/Applications/ApplicationID=%'
+             THEN [AA].[Name]
+          ELSE 'Wrong'
+       END, '%') AND [EntityUri] LIKE CONCAT('%=', [AE].NetObjectID)
+INNER JOIN Orion.AuditingActionTypes AS [AT]
+   ON [AE].ActionTypeID = [AT].ActionTypeID
+WHERE [AT].ActionTypeDisplayName LIKE '%mute%'
+  AND [AE].AuditEventMessage LIKE '%muted alerts on%'
+AND N.Unmanaged = 0
