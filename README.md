@@ -1,4 +1,4 @@
-# SolarWinds-SWQL-examples
+# SolarWinds SWQL examples
 A collection of SolarWinds SWQL examples
 
 After quite a few years of SolarWinds adminsitartion I have collected quite a few SWQL examples, which can be used for API calls, Alerts and Reports.
