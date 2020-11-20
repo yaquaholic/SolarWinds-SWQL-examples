@@ -1,0 +1,7 @@
+SELECT N.Caption AS [Local Device],
+    CDP.IPAddress AS [IP Address],
+    CDP.DevicePort AS [Local Interface],
+    CDP.DeviceId AS Device,
+    CDP.DevicePort AS [Remote Interface]
+FROM  Orion.NodeCdpEntry CDP
+INNER JOIN Orion.Nodes n ON CDP.NodeID = N.NodeID
