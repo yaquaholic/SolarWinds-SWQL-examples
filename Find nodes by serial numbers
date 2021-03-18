@@ -1,0 +1,4 @@
+SELECT n.Caption, n.NodeID, h.Manufacturer, h.Model, h.ServiceTag
+FROM Orion.HardwareHealth.HardwareInfo h
+LEFT JOIN orion.nodes n ON h.nodeid=n.nodeid
+WHERE h.ServiceTag IN (('FOCxxxN','FOC2xxxxx0','FOCxxxxxx6','FOCxxxxx8','FOCxxxxxx9','FOC2xxxxxH7'))
